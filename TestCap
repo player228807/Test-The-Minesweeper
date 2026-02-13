@@ -1,0 +1,112 @@
+import tkinter
+from tkinter import *
+import random
+
+root = Tk()
+root.title("Cap")
+root.geometry("500x650")
+root.resizable(width=False, height=False) 
+root["bg"] = "#2c3e50"
+
+starting_classik_game = False
+
+def classik_game():
+    
+    board = [ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0] ] 
+ 
+    cells = 0  
+    win = 0        
+    mockery = ["GAME OVER", "АХАХХАХАХА", "You?", "You not win", "You Idiot", "You Lose",  "Im Win. You not.", "You dumb", "Ahhaha", "XD", "BOOM", "You idiot" ,"Судьба против тебя?" ,"У тебя не получится", "...","Мимо!", "Ты победил... Хаха, шучу", "Будь внимательней!", "Возможно потом выйдет", "Удачи", "Мина!", "1 ошибка и ты ошибся"]
+    min_generator = [0,0,0,0,0,1,1]
+
+#Функция завершения игры
+    mess_over = Button(root, text=random.choice(mockery), bg="white")  
+    def over():
+        root.destroy()   
+        return None
+
+#Функция мины        
+    def BOOMing(button):
+        def BOOM():
+            button.configure(bg="red")
+            button.config(state="disabled")
+            mess_over.grid(row=5, column=0, columnspan=5, pady=15)
+            root.after(600, over)
+        return BOOM
+    
+       
+#Пробегаемся циклом по полю board и случайным образом меняем значение с 0 на 1      
+    for i in range(5):
+        for j in range(5):
+             board[i][j] = random.choice(min_generator)
+
+#Кнопки-подзказки
+    for l in range(5):
+         for r in range(5):
+            if board[l][r] == 0:
+                if ( r > 0 and board[l][r-1] == 1) or (r < 4 and board[l][r+1] == 1):
+                    board[l][r] = 2
+        
+#Ну функция, чтобы 0 превращать в серые кнопки       #Еще сообщение победы
+
+    wining = Button(root, text="Ты выйграл! Поздравляю", bg="white", relief=RAISED, bd=5)       
+       
+    def nothing(button):
+        def noth():
+            nonlocal win, cells
+            button.configure(bg="grey")
+            button.config(state="disabled")
+            win += 1
+            if win == cells:
+                wining.grid(row=5, column=0, columnspan=5, pady=15)
+                root.after(600, over)
+        return noth
+
+    def danger(button):
+        def dan():
+            nonlocal win, cells
+            button.configure(bg="#ffd93d")
+            button.config(state="disabled")
+            win += 1
+            if win == cells:
+                wining.grid(row=5, column=0, columnspan=5, pady=15)
+                root.after(600, over)
+        return dan
+
+
+#Созданте игрового поля
+    for i in range(5):
+        for j in range(5):
+            if board[i][j] == 1:
+                pole = Button(root, bg="white", relief=RAISED, bd=5)
+                pole.grid(row=i, column=j, padx=2, pady=2)
+                pole.config(command=BOOMing(pole))
+            elif board[i][j] == 0:
+                pole = Button(root, bg="white", relief=RAISED, bd=5)
+                pole.grid(row=i, column=j, padx=2, pady=2)
+                pole.config(command=nothing(pole))
+                cells += 1
+            elif board[i][j] == 2:
+                pole = Button(root, bg="white", relief=RAISED, bd=5)
+                pole.grid(row=i, column=j, padx=2, pady=2)
+                pole.config(command=danger(pole))
+                
+    start.destroy()            
+
+start = Button(
+    root, 
+    text="Классика", 
+    bg="white", 
+    command=classik_game, 
+    font=("Arial", 15, "bold"), 
+    relief=RAISED, 
+    bd=7
+)
+
+start.place(relx=0.5, rely=0.2, anchor=CENTER)
+
+root.mainloop()
