@@ -4,24 +4,29 @@ import random
 
 root = Tk()
 root.title("Cap")
-root.geometry("500x650")
+root.geometry("900x950")
 root.resizable(width=False, height=False) 
-root["bg"] = "#2c3e50"
+root["bg"] = "#2c3e75"
 
-starting_classik_game = False
+#starting_classik_game = False
+board = [ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0] ]
 
-def classik_game():
-    
-    board = [ [0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0],
- [0, 0, 0, 0, 0] ] 
+def clear():
+    for btn in root.winfo_children():
+        if btn.winfo_class() == 'Button':
+            btn.place_forget()
+
+  
+def classik_game(): 
  
     cells = 0  
     win = 0        
-    mockery = ["GAME OVER", "АХАХХАХАХА", "You?", "You not win", "You Idiot", "You Lose",  "Im Win. You not.", "You dumb", "Ahhaha", "XD", "BOOM", "You idiot" ,"Судьба против тебя?" ,"У тебя не получится", "...","Мимо!", "Ты победил... Хаха, шучу", "Будь внимательней!", "Возможно потом выйдет", "Удачи", "Мина!", "1 ошибка и ты ошибся"]
-    min_generator = [0,0,0,0,0,1,1]
+    mockery = ["GAME OVER", "АХАХХАХАХА", "You?", "You not win", "You Idiot", "You Lose",  "Im Win. You not.", "You dumb", "Ahhaha", "XD", "BOOM", "You idiot" ,"Судьба против тебя?" ,"У тебя не получится", "...","Мимо!", "Ты победил... Хаха, шучу", "Будь внимательней!", "Удачи", "Мина!", "1 ошибка и ты ошибся", "You idiot","AHAHAHAAHHAHAHAHAHAHAHAHAHHAHAHHАХПХХАПХПХХПХПХХПХПХПХПНАНАННАНАНАНAHAHHAHAHAHHAHHAHHAAHAHHAHAHHAHHAHAHHAHAHHAHAHAHHAHHAHAHAHAHAHHAHHAHAHAHAHAH", "IDIOT, AHAHAHHAH" ]
+#   min_generator = [0,0,0,0,0,1]
 
 #Функция завершения игры
     mess_over = Button(root, text=random.choice(mockery), bg="white")  
@@ -40,10 +45,20 @@ def classik_game():
     
        
 #Пробегаемся циклом по полю board и случайным образом меняем значение с 0 на 1      
-    for i in range(5):
-        for j in range(5):
-             board[i][j] = random.choice(min_generator)
-
+#ЭТО старый код
+ #   for i in range(5):
+  #      for j in range(5):
+    #         board[i][j] = random.choice(min_generator)
+    
+#Теперь мин - 7 
+    bombs_to_place = 7
+    while bombs_to_place > 0:
+        x = random.randint(0, 4)
+        y = random.randint(0, 4)
+        if board[x][y] == 0:  # Если клетка пустая
+            board[x][y] = 1
+            bombs_to_place -= 1
+ 
 #Кнопки-подзказки
     for l in range(5):
          for r in range(5):
@@ -78,7 +93,7 @@ def classik_game():
         return dan
 
 
-#Созданте игрового поля
+#Создание игрового поля
     for i in range(5):
         for j in range(5):
             if board[i][j] == 1:
@@ -94,8 +109,10 @@ def classik_game():
                 pole = Button(root, bg="white", relief=RAISED, bd=5)
                 pole.grid(row=i, column=j, padx=2, pady=2)
                 pole.config(command=danger(pole))
+                cells += 1
                 
-    start.destroy()            
+    start.place_forget()
+    startpvp.place_forget()
 
 start = Button(
     root, 
@@ -108,5 +125,139 @@ start = Button(
 )
 
 start.place(relx=0.5, rely=0.2, anchor=CENTER)
+
+
+def pvp():
+    max_bms = 7
+    cells = 0
+    win = 0
+    nmockery = ["Победил Диверсант"]
+    wining = Button(root, text="Сапёр выйграл!", bg="white", relief=RAISED, bd=5)       
+       
+    fboard = [ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0] ]
+    
+    
+    mess_over = Button(root, text=nmockery[0], bg="white")  
+    def over():
+        root.destroy()   
+        return None
+    
+    #Функция мины        
+    def BOOMing(button):
+        def BOOM():
+            button.configure(bg="red")
+            button.config(state="disabled")
+            mess_over.grid(row=5, column=0, columnspan=5, pady=15)
+            root.after(600, over)
+        return BOOM
+        
+    def danger(button):
+        def dan():
+            nonlocal win, cells
+            button.configure(bg="#ffd93d")
+            button.config(state="disabled")
+            win += 1
+            if win == cells:
+                wining.grid(row=5, column=0, columnspan=5, pady=15)
+                root.after(600, over)
+        return dan
+        
+    #Функции, для диверсанта
+    def planting(button, x, y):
+        def plant():
+                 nonlocal max_bms
+                 if  max_bms > 0:
+                     max_bms -= 1
+                     button.configure(bg="orange")
+                     button.config(state="disabled")
+                     fboard[x][y] = 1
+                 elif max_bms == 0:
+                     clear()   
+                     stage2()             
+        return plant
+    
+                                  
+    for i in range(5):
+                    for j in range(5):
+                        #if max_bms > 0:
+                            pole = Button(root, bg="white", relief=RAISED, bd=5)
+                            pole.grid(row=i, column=j, padx=2, pady=2)
+                            pole.config(command=planting(pole, i, j))
+                            
+    def nothing(button):
+        def noth():
+            nonlocal win, cells
+            button.configure(bg="grey")
+            button.config(state="disabled")
+            win += 1
+            if win == cells:
+                wining.grid(row=5, column=0, columnspan=5, pady=15)
+                root.after(600, over)
+        return noth
+
+    def stage2():        
+        nonlocal win, cells
+        win = 0
+        cells = 0
+        #Кнопки-подзказки
+        for l in range(5):
+             for r in range(5):
+                if fboard[l][r] == 0:
+                    if (r > 0 and fboard[l][r-1] == 1) or (r < 4 and fboard[l][r+1] == 1):
+                        fboard[l][r] = 2
+ 
+        for i in range(5):
+           for j in range(5):
+                if fboard[i][j] == 1:
+                    pole = Button(root, bg="white", relief=RAISED, bd=5)
+                    pole.grid(row=i, column=j, padx=2, pady=2)
+                    pole.config(command=BOOMing(pole))
+                elif fboard[i][j] == 0:
+                    pole = Button(root, bg="white", relief=RAISED, bd=5)
+                    pole.grid(row=i, column=j, padx=2, pady=2)
+                    pole.config(command=nothing(pole))
+                    cells += 1
+                elif fboard[i][j] == 2:
+                    pole = Button(root, bg="white", relief=RAISED, bd=5)
+                    pole.grid(row=i, column=j, padx=2, pady=2)
+                    pole.config(command=danger(pole))
+                    cells += 1
+                    
+                                            
+                           
+                       
+                        
+                        
+       # return sab()
+       
+       
+    start.place_forget()
+    startpvp.place_forget()
+                    
+                    
+   
+            
+            
+            
+            
+            #Я думаю, в теории нужно создать поле и чтобы диверсант ставио мины, они будут оранжевые, мин нудно поставить 7, нужно создать массив в котором будут сохранятся позиции мин значением 1. Когда он поставит 7 мин надо будет сбросить и пересоздать поле где мины будут невидимы для второго игрока, который уже разминирует поле как в режиме классики.
+            
+            
+startpvp = Button(
+    root, 
+    text="ПВП", 
+    bg="white", 
+    command=pvp, 
+    font=("Arial", 15, "bold"), 
+    relief=RAISED, 
+    bd=7
+)
+
+startpvp.place(relx=0.498, rely=0.3, anchor=CENTER)    
+    
 
 root.mainloop()
